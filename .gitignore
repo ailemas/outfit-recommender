@@ -1,0 +1,16 @@
+# Python
+backend/venv/
+backend/__pycache__/
+backend/model/
+*.pyc
+*.pkl
+
+# Dataset
+backend/data/
+
+# React
+frontend/node_modules/
+frontend/dist/
+
+# Mac
+.DS_Store
