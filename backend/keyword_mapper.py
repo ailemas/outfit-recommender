@@ -43,3 +43,11 @@ KEYWORD_MAP: dict[str, dict[str, float]] = {
     
     
 }
+
+# converts a list of keyword strings into a numeric feature vector aligned with feature_columns
+# unknown keywords are ignored (vector value remains 0)
+# if no keyword matches, raise ValueError
+def keywords_to_vector(keywords: list[str], feaure_columns: list[str]) -> list[float]:
+    # implement
+    return
+
