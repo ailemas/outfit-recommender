@@ -45,3 +45,18 @@ if __name__ == "__main__":
     print(list(features.columns[:20]))
     
     
+"""
+outputs:
+
+Loading data/styles.csv...
+    Items loaded : 44079
+    Feature dimensions : 108
+Saved processed_styles.csv and features.csv
+
+Sample feature columns:
+['gender_Boys', 'gender_Girls', 'gender_Men', 'gender_Unisex', 'gender_Women', 'subCategory_Accessories', 'subCategory_Apparel Set',
+'subCategory_Bags', 'subCategory_Bath and Body', 'subCategory_Beauty Accessories', 'subCategory_Belts', 'subCategory_Bottomwear',
+'subCategory_Cufflinks', 'subCategory_Dress', 'subCategory_Eyes', 'subCategory_Eyewear', 'subCategory_Flip Flops', 'subCategory_Fragrance',
+'subCategory_Free Gifts', 'subCategory_Gloves']
+"""
+
