@@ -1,122 +1,213 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import heroImg from './assets/hero.png'
-import './App.css'
+import { useState } from "react";
+import "./App.css";
 
-function App() {
-  const [count, setCount] = useState(0)
+// ─── Quick-pick keyword chips shown on the UI ───────────────────────────────
+const CHIP_GROUPS = [
+  { label: "Season",    chips: ["summer", "winter", "spring", "fall"] },
+  { label: "Occasion",  chips: ["casual", "formal", "party", "sports", "travel"] },
+  { label: "Vibe",      chips: ["cute", "minimalist", "glam", "chic", "cozy", "edgy"] },
+  { label: "Category",  chips: ["dress", "tops", "shoes", "bags", "accessories"] },
+  { label: "Colour",    chips: ["black", "white", "blue", "pink", "red", "beige"] },
+];
+
+const API = "http://localhost:5000";
+
+// ─── Single outfit card ─────────────────────────────────────────────────────
+function OutfitCard({ item }) {
+  const [imgError, setImgError] = useState(false);
 
   return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
+    <div style={s.card}>
+      {imgError ? (
+        <div style={s.imgFallback}>No Image</div>
+      ) : (
+        <img
+          src={`${API}${item.image_url}`}
+          alt={item.name}
+          style={s.cardImg}
+          onError={() => setImgError(true)}
+        />
+      )}
+      <div style={s.cardBody}>
+        <p style={s.cardName}>{item.name}</p>
+        <div style={s.tagRow}>
+          {[item.season, item.usage, item.color].map(t => (
+            <span key={t} style={s.tag}>{t}</span>
+          ))}
         </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.jsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
-
-      <div className="ticks"></div>
-
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
-
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
-  )
+        <p style={s.similarity}>Match: {Math.round(item.similarity * 100)}%</p>
+      </div>
+    </div>
+  );
 }
 
-export default App
+// ─── Main app ───────────────────────────────────────────────────────────────
+export default function App() {
+  const [text,       setText]       = useState("");
+  const [selected,   setSelected]   = useState([]);
+  const [results,    setResults]    = useState([]);
+  const [loading,    setLoading]    = useState(false);
+  const [error,      setError]      = useState("");
+  const [searched,   setSearched]   = useState(false);
+
+  // Toggle a quick-pick chip
+  const toggleChip = (chip) =>
+    setSelected(prev =>
+      prev.includes(chip) ? prev.filter(c => c !== chip) : [...prev, chip]
+    );
+
+  // Combine chip selections + free-text input into one keyword list
+  const buildKeywords = () => {
+    const fromText = text.trim()
+      ? text.split(/[\s,]+/).map(w => w.toLowerCase()).filter(Boolean)
+      : [];
+    return [...new Set([...selected, ...fromText])];
+  };
+
+  const handleSearch = async () => {
+    const keywords = buildKeywords();
+    if (!keywords.length) {
+      setError("Pick at least one keyword or type something.");
+      return;
+    }
+
+    setLoading(true);
+    setError("");
+    setSearched(true);
+
+    try {
+      const res = await fetch(`${API}/recommend`, {
+        method:  "POST",
+        headers: { "Content-Type": "application/json" },
+        body:    JSON.stringify({ keywords, n: 8 }),
+      });
+      const data = await res.json();
+      if (data.error) throw new Error(data.error);
+      setResults(data.results ?? []);
+    } catch (err) {
+      setError(err.message || "Could not connect to backend. Is Flask running?");
+      setResults([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleClear = () => {
+    setText(""); setSelected([]); setResults([]);
+    setError(""); setSearched(false);
+  };
+
+  return (
+    <div style={s.page}>
+      {/* ── Header ── */}
+      <header style={s.header}>
+        <h1 style={s.title}>✨Outfit Recommender</h1>
+        <p style={s.sub}>Describe your vibe — we'll find your look.</p>
+      </header>
+
+      {/* ── Keyword chips ── */}
+      <div style={s.chipSection}>
+        {CHIP_GROUPS.map(({ label, chips }) => (
+          <div key={label} style={s.chipGroup}>
+            <span style={s.chipGroupLabel}>{label}</span>
+            <div style={s.chipRow}>
+              {chips.map(chip => (
+                <button
+                  key={chip}
+                  onClick={() => toggleChip(chip)}
+                  style={{
+                    ...s.chip,
+                    ...(selected.includes(chip) ? s.chipOn : {}),
+                  }}
+                >
+                  {chip}
+                </button>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* ── Free-text input ── */}
+      <div style={s.inputRow}>
+        <input
+          style={s.input}
+          type="text"
+          placeholder='Add more keywords, e.g. "navy midi dress"'
+          value={text}
+          onChange={e => setText(e.target.value)}
+          onKeyDown={e => e.key === "Enter" && handleSearch()}
+        />
+        <button style={s.btn} onClick={handleSearch} disabled={loading}>
+          {loading ? "Searching…" : "Find Outfits"}
+        </button>
+        {searched && (
+          <button style={{ ...s.btn, ...s.btnGhost }} onClick={handleClear}>
+            Clear
+          </button>
+        )}
+      </div>
+
+      {/* ── Active keyword pills ── */}
+      {buildKeywords().length > 0 && (
+        <p style={s.activeLabel}>
+          Searching for: {buildKeywords().map(k => (
+            <strong key={k}> #{k}</strong>
+          ))}
+        </p>
+      )}
+
+      {/* ── Errors ── */}
+      {error && <p style={s.error}>{error}</p>}
+
+      {/* ── Results grid ── */}
+      {results.length > 0 && (
+        <>
+          <p style={s.resultCount}>{results.length} outfits found</p>
+          <div style={s.grid}>
+            {results.map(item => <OutfitCard key={item.id} item={item} />)}
+          </div>
+        </>
+      )}
+
+      {searched && !loading && results.length === 0 && !error && (
+        <p style={s.empty}>No outfits matched. Try different keywords!</p>
+      )}
+    </div>
+  );
+}
+
+// ─── Styles ─────────────────────────────────────────────────────────────────
+const s = {
+  page:            { maxWidth: 1000, margin: "0 auto", padding: "2rem 1rem", fontFamily: "system-ui, sans-serif" },
+  header:          { textAlign: "center", marginBottom: "1.5rem" },
+  title:           { fontSize: "2rem", margin: 0 },
+  sub:             { color: "#666", margin: "0.25rem 0 0" },
+
+  chipSection:     { display: "flex", flexDirection: "column", gap: "0.6rem", marginBottom: "1.2rem" },
+  chipGroup:       { display: "flex", alignItems: "center", gap: "0.5rem", flexWrap: "wrap" },
+  chipGroupLabel:  { minWidth: 72, fontSize: "0.75rem", fontWeight: 600, color: "#888", textTransform: "uppercase" },
+  chipRow:         { display: "flex", gap: "0.4rem", flexWrap: "wrap" },
+  chip:            { padding: "0.35rem 0.85rem", border: "1.5px solid #ddd", borderRadius: 999, background: "#fff", color: "#333", cursor: "pointer", fontSize: "0.82rem", transition: "all 0.15s" },
+  chipOn:          { background: "#111827", color: "#fff", border: "1.5px solid #111827" },
+
+  inputRow:        { display: "flex", gap: "0.5rem", marginBottom: "0.75rem", flexWrap: "wrap" },
+  input:           { flex: 1, minWidth: 200, padding: "0.6rem 1rem", border: "1.5px solid #ddd", borderRadius: 8, fontSize: "0.95rem" },
+  btn:             { padding: "0.6rem 1.4rem", background: "#111827", color: "#fff", border: "none", borderRadius: 8, cursor: "pointer", fontSize: "0.95rem", whiteSpace: "nowrap" },
+  btnGhost:        { background: "#fff", color: "#111827", border: "1.5px solid #ddd" },
+
+  activeLabel:     { fontSize: "0.85rem", color: "#555", marginBottom: "0.5rem" },
+  error:           { color: "#c0392b", textAlign: "center", margin: "1rem 0" },
+  resultCount:     { fontSize: "0.85rem", color: "#888", marginBottom: "0.75rem" },
+  empty:           { textAlign: "center", color: "#999", marginTop: "2rem" },
+
+  grid:            { display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(210px, 1fr))", gap: "1rem" },
+  card:            { border: "1px solid #eee", borderRadius: 12, overflow: "hidden", background: "#fff", boxShadow: "0 2px 10px rgba(0,0,0,0.06)", display: "flex", flexDirection: "column" },
+  cardImg:         { width: "100%", height: 250, objectFit: "cover" },
+  imgFallback:     { width: "100%", height: 250, background: "#f5f5f5", display: "flex", alignItems: "center", justifyContent: "center", color: "#aaa", fontSize: "0.85rem" },
+  cardBody:        { padding: "0.75rem", flex: 1 },
+  cardName:        { fontSize: "0.82rem", fontWeight: 500, margin: "0 0 0.5rem", color: "#222", lineHeight: 1.4 },
+  tagRow:          { display: "flex", gap: "0.3rem", flexWrap: "wrap", marginBottom: "0.4rem" },
+  tag:             { fontSize: "0.68rem", background: "#f3f4f6", padding: "0.2rem 0.5rem", borderRadius: 99, color: "#555" },
+  similarity:      { fontSize: "0.72rem", color: "#888", margin: 0 },
+};
