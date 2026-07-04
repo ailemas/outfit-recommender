@@ -1,3 +1,7 @@
+"""
+- app.py is the flask backend
+- run after train.py has been executed
+"""
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 import joblib
