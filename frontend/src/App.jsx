@@ -3,11 +3,11 @@ import "./App.css";
 
 // ─── Quick-pick keyword chips shown on the UI ───────────────────────────────
 const CHIP_GROUPS = [
+  { label: "Category",  chips: ["dress", "tops", "shoes", "bags", "accessories"] },
+  { label: "Vibe",      chips: ["cute", "minimalist", "glam", "chic", "cozy", "edgy"] },
+  { label: "Colour",    chips: ["black", "white", "blue", "pink", "red", "beige", "green", "yellow"] },
   { label: "Season",    chips: ["summer", "winter", "spring", "fall"] },
   { label: "Occasion",  chips: ["casual", "formal", "party", "sports", "travel"] },
-  { label: "Vibe",      chips: ["cute", "minimalist", "glam", "chic", "cozy", "edgy"] },
-  { label: "Category",  chips: ["dress", "tops", "shoes", "bags", "accessories"] },
-  { label: "Colour",    chips: ["black", "white", "blue", "pink", "red", "beige"] },
 ];
 
 const API = "http://localhost:5000";
@@ -101,8 +101,8 @@ export default function App() {
     <div style={s.page}>
       {/* ── Header ── */}
       <header style={s.header}>
-        <h1 style={s.title}>✨Outfit Recommender</h1>
-        <p style={s.sub}>Describe your vibe — we'll find your look.</p>
+        <h1 style={s.title}>✨Outfit Recommender✨</h1>
+        <p style={s.sub}>Describe your vibe—we'll find your look.</p>
       </header>
 
       {/* ── Keyword chips ── */}
@@ -181,7 +181,7 @@ export default function App() {
 const s = {
   page:            { maxWidth: 1000, margin: "0 auto", padding: "2rem 1rem", fontFamily: "system-ui, sans-serif" },
   header:          { textAlign: "center", marginBottom: "1.5rem" },
-  title:           { fontSize: "2rem", margin: 0 },
+  title:           { fontSize: "2rem", margin: 0, color: "#000" },
   sub:             { color: "#666", margin: "0.25rem 0 0" },
 
   chipSection:     { display: "flex", flexDirection: "column", gap: "0.6rem", marginBottom: "1.2rem" },
@@ -192,7 +192,7 @@ const s = {
   chipOn:          { background: "#111827", color: "#fff", border: "1.5px solid #111827" },
 
   inputRow:        { display: "flex", gap: "0.5rem", marginBottom: "0.75rem", flexWrap: "wrap" },
-  input:           { flex: 1, minWidth: 200, padding: "0.6rem 1rem", border: "1.5px solid #ddd", borderRadius: 8, fontSize: "0.95rem" },
+  input:           { flex: 1, minWidth: 200, padding: "0.6rem 1rem", border: "1.5px solid #ddd", borderRadius: 8, fontSize: "0.95rem", background: "#f5f5dc", color: "#333" },
   btn:             { padding: "0.6rem 1.4rem", background: "#111827", color: "#fff", border: "none", borderRadius: 8, cursor: "pointer", fontSize: "0.95rem", whiteSpace: "nowrap" },
   btnGhost:        { background: "#fff", color: "#111827", border: "1.5px solid #ddd" },
 
