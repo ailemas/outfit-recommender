@@ -12,6 +12,9 @@
 
 """
 
+import re
+
+
 KEYWORD_MAP: dict[str, dict[str, float]] = {
     
     # seasons
@@ -99,7 +102,7 @@ KEYWORD_MAP: dict[str, dict[str, float]] = {
     "red":              {"baseColour_Red": 1},
     "rose":             {"baseColour_Rose": 1},
     "rust":             {"baseColour_Rust": 1},
-    "Sea green":        {"baseColour_Sea Green": 1},
+    "sea green":        {"baseColour_Sea Green": 1},
     "silver":           {"baseColour_Silver": 1},
     "steel":            {"baseColour_Steel": 1},
     "tan":              {"baseColour_Tan": 1},
@@ -204,6 +207,48 @@ KEYWORD_MAP: dict[str, dict[str, float]] = {
     
 }
 
+
+def extract_keywords(text: str) -> list[str]:
+    """Extract known keywords, preserving phrases such as ``smart casual``.
+
+    Keywords are matched from left to right, with the longest match at each
+    position winning. Unknown words are skipped.
+    """
+    words = re.findall(r"[a-z]+(?:'[a-z]+)?", text.lower())
+    keyword_words = {
+        tuple(re.findall(r"[a-z]+(?:'[a-z]+)?", keyword)): keyword
+        for keyword in KEYWORD_MAP
+    }
+    max_keyword_length = max(len(parts) for parts in keyword_words)
+
+    matches = []
+    position = 0
+    while position < len(words):
+        matched_keyword = None
+        matched_length = 0
+
+        for length in range(
+            min(max_keyword_length, len(words) - position),
+            0,
+            -1,
+        ):
+            candidate = tuple(words[position:position + length])
+            if candidate in keyword_words:
+                matched_keyword = keyword_words[candidate]
+                matched_length = length
+                break
+
+        if matched_keyword is None:
+            position += 1
+            continue
+
+        if matched_keyword not in matches:
+            matches.append(matched_keyword)
+        position += matched_length
+
+    return matches
+
+
 # converts a list of keyword strings into a numeric feature vector aligned with feature_columns
 # unknown keywords are ignored (vector value remains 0)
 # if no keyword matches, raise ValueError
@@ -224,4 +269,3 @@ def keywords_to_vector(keywords: list[str], feature_columns: list[str]) -> list[
                          "Try: summer, casual, formal, women, white, dress, etc.")
 
     return [vector[col] for col in feature_columns]
-

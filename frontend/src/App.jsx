@@ -56,12 +56,11 @@ export default function App() {
       prev.includes(chip) ? prev.filter(c => c !== chip) : [...prev, chip]
     );
 
-  // Combine chip selections + free-text input into one keyword list
+  // Keep the free-text phrase intact so the backend can recognize phrases
+  // such as "smart casual", "navy blue", and "off white".
   const buildKeywords = () => {
-    const fromText = text.trim()
-      ? text.split(/[\s,]+/).map(w => w.toLowerCase()).filter(Boolean)
-      : [];
-    return [...new Set([...selected, ...fromText])];
+    const freeText = text.trim().toLowerCase();
+    return freeText ? [...selected, freeText] : selected;
   };
 
   const handleSearch = async () => {
@@ -76,7 +75,7 @@ export default function App() {
     setSearched(true);
 
     try {
-      const res = await fetch(`${API}/recommend`, {
+      const res = await fetch(`${API}/api/recommend`, {
         method:  "POST",
         headers: { "Content-Type": "application/json" },
         body:    JSON.stringify({ keywords, n: 8 }),
