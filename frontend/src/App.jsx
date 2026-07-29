@@ -80,7 +80,7 @@ export default function App() {
       const res = await fetch(`${API}/api/recommend`, {
         method:  "POST",
         headers: { "Content-Type": "application/json" },
-        body:    JSON.stringify({ keywords, n: 8 }),
+        body:    JSON.stringify({ keywords, n: 12 }),
       });
       const data = await res.json();
       if (data.error) throw new Error(data.error);
