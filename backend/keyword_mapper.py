@@ -94,7 +94,7 @@ KEYWORD_MAP: dict[str, dict[str, float]] = {
     "navy blue":        {"baseColour_Navy Blue": 1},
     "nude":             {"baseColour_Nude": 1},
     "off white":        {"baseColour_Off White": 1},
-    "olive":            {"baseColour_Olive Green": 1},
+    "olive":            {"baseColour_Olive": 1},
     "orange":           {"baseColour_Orange": 1},
     "peach":            {"baseColour_Peach": 1},
     "pink":             {"baseColour_Pink": 1},
