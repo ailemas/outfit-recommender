@@ -9,7 +9,7 @@ import numpy as np
 import os
 
 # columns in dataset that are used as features for KNN
-FEATURE_COLUMNS = ["gender", "subCategory", "baseColour", "season", "usage"]
+FEATURE_COLUMNS = ["gender", "subCategory", "articleType", "baseColour", "season", "usage"]
 META_COLUMNS = ["id", "productDisplayName"] + FEATURE_COLUMNS
 
 # returns cleaned metadata dataframe and one-hot encoded dataframe of features for KNN
