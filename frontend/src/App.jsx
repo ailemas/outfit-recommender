@@ -204,8 +204,8 @@ const s = {
 
   grid:            { display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(210px, 1fr))", gap: "1rem" },
   card:            { border: "1px solid #eee", borderRadius: 12, overflow: "hidden", background: "#fff", boxShadow: "0 2px 10px rgba(0,0,0,0.06)", display: "flex", flexDirection: "column", alignItems: "center" },
-  cardImg:         { width: "auto", maxWidth: "100%", height: "auto", maxHeight: 220, objectFit: "contain", objectPosition: "center", background: "#f7f7f7", padding: "0.6rem", boxSizing: "border-box", display: "block", imageRendering: "auto" },
-  imgFallback:     { width: "100%", height: 220, background: "#f5f5f5", display: "flex", alignItems: "center", justifyContent: "center", color: "#aaa", fontSize: "0.85rem" },
+  cardImg:         { width: "auto", maxWidth: "100%", height: "auto", maxHeight: 280, objectFit: "contain", objectPosition: "center", background: "#f7f7f7", padding: "0.6rem", boxSizing: "border-box", display: "block", imageRendering: "auto" },
+  imgFallback:     { width: "100%", height: 280, background: "#f5f5f5", display: "flex", alignItems: "center", justifyContent: "center", color: "#aaa", fontSize: "0.85rem" },
   cardBody:        { padding: "0.75rem", flex: 1 },
   cardName:        { fontSize: "0.82rem", fontWeight: 500, margin: "0 0 0.5rem", color: "#222", lineHeight: 1.4 },
   tagRow:          { display: "flex", gap: "0.3rem", flexWrap: "wrap", marginBottom: "0.4rem" },
