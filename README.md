@@ -2,6 +2,8 @@
 
 Download the small version of the dataset: https://www.kaggle.com/datasets/paramaggarwal/fashion-product-images-small
 
+Large version: https://www.kaggle.com/datasets/paramaggarwal/fashion-product-images-dataset?resource=download
+
 ### Add a folder called data that contains the styles.csv and images from dataset in backend folder:
 ```
 Structure:
